@@ -1,72 +1,97 @@
 
-django.el,2565
-(defgroup django 26,897
-(defcustom django-etags-command 31,991
-(defcustom django-server-host 36,1139
-(defcustom django-server-port 41,1250
-(defcustom django-test-failfast 46,1356
-(defun chomp 55,1530
-(defun django-pop(60,1763
-(defun django-comint-pop(65,1876
-(defun django-dir-excursion(72,2094
-(defun django-reload-mode(80,2323
-(defun django-get-func(85,2405
-(defun django-get-class(93,2677
-(defun django-get-app(101,2941
-(defun django-project-root(112,3283
-(defun django-manage-cmd(128,3832
-(defun django-command-exists(143,4376
-(defun django-command-if-exists(149,4554
-(defun django-get-setting(162,4999
-(defun django-setting(188,5846
-(defun django-buildout-cmd(195,6101
-(defun django-buildout-list-bin(208,6536
-(defun django-buildout(212,6692
-(defun django-buildout-bin(232,7316
-(defstruct django-db-settings 244,7756
-(defun django-get-db-settings(246,7815
-(defun django-db-shell(257,8232
-(defun django-fabric-list-commands(278,8977
-(defun django-fabric-run(282,9164
-(defun django-fabric(286,9267
-(defun django-fabric-deploy(293,9527
-(defun django-dumpdata(299,9653
-(defun django-template-decorator(311,10070
-(defun django-tpl-msg(321,10335
-(defun django-goto-template(325,10417
-(defun django-find-file 341,10976
-(defun django-find-urlconfs 373,12041
-(defun django-reverse-url 377,12119
-(defun django-list-commands(406,12868
-(defun django-manage-run(417,13264
-(defun django-manage(421,13423
-(defun django-runserver(431,13835
-(defun django-stopserver(449,14437
-(defun django-browser(456,14614
-(defun django-shell(468,14907
-(defun django-startapp(477,15198
-(defun django-syncdb(485,15439
-(defun django-south-get-migrations(492,15658
-(defun django-south-convert(496,15754
-(defun django-south-schemamigration(503,16010
-(defun django-south-migrate(515,16503
-(defun django-south-fake 521,16728
-(defun django-tags(531,17123
-(defun django-test(545,17603
-(defun django-test-open 569,18431
-(defun django-test-goto-err(580,18882
-(defun django-test-up(586,19059
-(defun django-test-down(591,19198
-(defun django-test-hl-files 596,19338
-(defvar django-snippet-dir 604,19548
-(defun django-load-snippets(607,19717
-(defvar django-minor-mode-hook 615,19911
-(defun django-key(619,19960
-(defvar django-minor-mode-map623,20106
-(defun django-test-extra-keys(637,20594
-(define-minor-mode django-minor-mode688,22792
-(defun django-mode(694,22916
-(defvar django-tpl-mode-hook 703,23095
-(defconst django-tpl-font-lock-keywords705,23130
-(define-minor-mode django-tpl-minor-mode718,23785
-(defun django-tpl-mode(724,23927
+pony-mode.el,3299
+(defgroup pony 34,1101
+(defcustom pony-etags-command 39,1191
+(defcustom pony-server-host 44,1355
+(defcustom pony-server-port 49,1478
+(defcustom pony-test-failfast 54,1596
+(defcustom pony-sqlite-program 59,1713
+(defun chomp 74,2045
+(defun pony-find-file 80,2300
+(defun pony-locate 94,2764
+(defun pony-read-file 112,3344
+(defun pony-pop(121,3541
+(defun pony-comint-pop(127,3675
+(defun pony-manage-pop 136,4023
+(defun pony-dir-excursion(144,4404
+(defun pony-mini-file(152,4647
+(defun pony-localise 162,4971
+(defstruct pony-project186,5541
+(defun pony-get-project(196,5658
+(defun pony-get-python(204,5839
+(defun pony-get-ipython(211,5990
+(defun pony-get-default-env(219,6153
+(defun pony-get-run-env(227,6353
+(defun pony-get-shell-env(237,6621
+(defun pony-get-test-env(247,6896
+(defun pony-configfile-p 259,7194
+(defun pony-rc 263,7340
+(defun pony-reload-mode(269,7498
+(defun pony-get-func(276,7597
+(defun pony-get-class(285,7897
+(defun pony-get-app(294,8190
+(defun pony-project-root(307,8556
+(defun pony-rooted-sym-p 327,9250
+(defun pony-manage-cmd(333,9487
+(defun pony-active-python 354,10374
+(defun pony-command-exists(368,10890
+(defun pony-command-if-exists(375,11100
+(defun pony-get-settings-file(388,11585
+(defun pony-setting-p 400,11944
+(defun pony-get-setting(408,12201
+(defun pony-setting(424,12792
+(defun pony-buildout-cmd(433,13073
+(defun pony-buildout-list-bin(446,13537
+(defun pony-buildout(451,13728
+(defun pony-buildout-bin(471,14373
+(defstruct pony-db-settings 484,14825
+(defun pony-get-db-settings(487,14897
+(defun pony-db-shell(506,15791
+(defun pony-fabric-p 529,16588
+(defun pony-fabric-list-commands(538,16840
+(defun pony-fabric-run(544,17068
+(defun pony-fabric(549,17199
+(defun pony-fabric-deploy(559,17544
+(defun pony-template-decorator(567,17698
+(defun pony-goto-template(578,17995
+(defun pony-reverse-url 595,18583
+(defun pony-goto-settings(609,19003
+(defun pony-list-commands(617,19176
+(defun pony-manage-run(629,19638
+(defun pony-manage(637,19924
+(defun pony-flush(647,20333
+(defun pony-dumpdata(655,20452
+(defun pony-loaddata 666,20829
+(defun pony-runserver(679,21221
+(defun pony-stopserver(701,21997
+(defun pony-temp-server 708,22171
+(defun pony-browser(723,22795
+(defun pony-shell(735,23081
+(defun pony-startapp(749,23458
+(defun pony-syncdb(759,23707
+(defun pony-south-convert(771,24057
+(defun pony-south-schemamigration(779,24320
+(defun pony-south-migrate(792,24837
+(defun pony-south-initial 808,25470
+(defun pony-tags(818,25758
+(defun pony-test(834,26248
+(defun pony-test-open 860,27108
+(defun pony-test-goto-err(872,27573
+(defun pony-test-up(879,27761
+(defun pony-test-down(885,27914
+(defun pony-test-hl-files 891,28068
+(defun pony-key(913,28682
+(defun ponyt-key 917,28822
+(defvar pony-minor-mode-map921,28955
+(defvar pony-test-minor-mode-map936,29445
+(defvar pony-menu 949,29797
+(defvar pony-minor-mode-hook 996,31370
+(define-minor-mode pony-minor-mode998,31405
+(defun pony-mode(1004,31521
+(defun pony-mode-disable 1013,31683
+(defvar pony-tpl-mode-hook 1020,31811
+(defconst pony-tpl-font-lock-keywords1022,31844
+(define-minor-mode pony-tpl-minor-mode1035,32471
+(defun pony-tpl-mode(1041,32605
+(define-minor-mode pony-test-minor-mode1052,32885
+(defun pony-test-mode 1058,33011
