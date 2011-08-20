@@ -744,19 +744,6 @@ Be aware of .ponyrc configfiles, 'clean', buildout, and
   (let ((proc (get-buffer-process "*pony-server*")))
     (when proc (kill-process proc t))))
 
-;; ;;;###autoload
-;; (defun pony-temp-server ()
-;;   "Relatively regularly during development, I need/want to set up a development
-;; server instance either on a nonstandard (or second) port, or that will be accessible
-;; to the outside world for some reason. Meanwhile, i don't want to set my default host to 0.0.0.0
-;; This function allows you to run a server with a 'throwaway' host:port"
-;;   (interactive)
-;;   (let ((args (list "runserver" (read-from-minibuffer "host:port "))))
-;;     (pony-manage-pop "ponytempserver"
-;;                      (pony-get-run-env)
-;;                      (pony-manage-cmd)
-;;                      args)))
-
 ;; View server
 
 ;;;###autoload
