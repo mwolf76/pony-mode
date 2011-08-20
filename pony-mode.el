@@ -310,11 +310,6 @@ sequences in command functions."
   "pony-rc: Get the settings stored in the .ponyrc file"
   (eval (pony-read-file (concat (pony-project-root) ".ponyrc"))))
 
-;;;###autoload
-(defun pony-reload-mode()
-  (interactive)
-  (load-library "pony-mode"))
-
 ;; Python
 
 ;;;###autoload
@@ -1049,7 +1044,6 @@ not in a buildout."
 (pony-key "\C-c\C-ps" 'pony-default-setting)
 (pony-key "\C-c\C-p!" 'pony-shell)
 (pony-key "\C-c\C-pt" 'pony-test)
-(pony-key "\C-c\C-p\C-r" 'pony-reload-mode)
 
 (defvar pony-test-minor-mode-map
   (let ((map (make-keymap)))
