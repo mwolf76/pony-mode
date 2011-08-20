@@ -1,97 +1,97 @@
 
-pony-mode.el,3299
-(defgroup pony 34,1101
-(defcustom pony-etags-command 39,1191
-(defcustom pony-server-host 44,1355
-(defcustom pony-server-port 49,1478
-(defcustom pony-test-failfast 54,1596
-(defcustom pony-sqlite-program 59,1713
-(defun chomp 74,2045
-(defun pony-find-file 80,2300
-(defun pony-locate 94,2764
-(defun pony-read-file 112,3344
-(defun pony-pop(121,3541
-(defun pony-comint-pop(127,3675
-(defun pony-manage-pop 136,4023
-(defun pony-dir-excursion(144,4404
-(defun pony-mini-file(152,4647
-(defun pony-localise 162,4971
-(defstruct pony-project186,5541
-(defun pony-get-project(196,5658
-(defun pony-get-python(204,5839
-(defun pony-get-ipython(211,5990
-(defun pony-get-default-env(219,6153
-(defun pony-get-run-env(227,6353
-(defun pony-get-shell-env(237,6621
-(defun pony-get-test-env(247,6896
-(defun pony-configfile-p 259,7194
-(defun pony-rc 263,7340
-(defun pony-reload-mode(269,7498
-(defun pony-get-func(276,7597
-(defun pony-get-class(285,7897
-(defun pony-get-app(294,8190
-(defun pony-project-root(307,8556
-(defun pony-rooted-sym-p 327,9250
-(defun pony-manage-cmd(333,9487
-(defun pony-active-python 354,10374
-(defun pony-command-exists(368,10890
-(defun pony-command-if-exists(375,11100
-(defun pony-get-settings-file(388,11585
-(defun pony-setting-p 400,11944
-(defun pony-get-setting(408,12201
-(defun pony-setting(424,12792
-(defun pony-buildout-cmd(433,13073
-(defun pony-buildout-list-bin(446,13537
-(defun pony-buildout(451,13728
-(defun pony-buildout-bin(471,14373
-(defstruct pony-db-settings 484,14825
-(defun pony-get-db-settings(487,14897
-(defun pony-db-shell(506,15791
-(defun pony-fabric-p 529,16588
-(defun pony-fabric-list-commands(538,16840
-(defun pony-fabric-run(544,17068
-(defun pony-fabric(549,17199
-(defun pony-fabric-deploy(559,17544
-(defun pony-template-decorator(567,17698
-(defun pony-goto-template(578,17995
-(defun pony-reverse-url 595,18583
-(defun pony-goto-settings(609,19003
-(defun pony-list-commands(617,19176
-(defun pony-manage-run(629,19638
-(defun pony-manage(637,19924
-(defun pony-flush(647,20333
-(defun pony-dumpdata(655,20452
-(defun pony-loaddata 666,20829
-(defun pony-runserver(679,21221
-(defun pony-stopserver(701,21997
-(defun pony-temp-server 708,22171
-(defun pony-browser(723,22795
-(defun pony-shell(735,23081
-(defun pony-startapp(749,23458
-(defun pony-syncdb(759,23707
-(defun pony-south-convert(771,24057
-(defun pony-south-schemamigration(779,24320
-(defun pony-south-migrate(792,24837
-(defun pony-south-initial 808,25470
-(defun pony-tags(818,25758
-(defun pony-test(834,26248
-(defun pony-test-open 860,27108
-(defun pony-test-goto-err(872,27573
-(defun pony-test-up(879,27761
-(defun pony-test-down(885,27914
-(defun pony-test-hl-files 891,28068
-(defun pony-key(913,28682
-(defun ponyt-key 917,28822
-(defvar pony-minor-mode-map921,28955
-(defvar pony-test-minor-mode-map936,29445
-(defvar pony-menu 949,29797
-(defvar pony-minor-mode-hook 996,31370
-(define-minor-mode pony-minor-mode998,31405
-(defun pony-mode(1004,31521
-(defun pony-mode-disable 1013,31683
-(defvar pony-tpl-mode-hook 1020,31811
-(defconst pony-tpl-font-lock-keywords1022,31844
-(define-minor-mode pony-tpl-minor-mode1035,32471
-(defun pony-tpl-mode(1041,32605
-(define-minor-mode pony-test-minor-mode1052,32885
-(defun pony-test-mode 1058,33011
+pony-mode.el,3289
+(defgroup pony 35,1169
+(defcustom pony-etags-command 40,1259
+(defcustom pony-server-host 45,1423
+(defcustom pony-server-port 50,1546
+(defcustom pony-test-failfast 55,1664
+(defcustom pony-sqlite-program 60,1781
+(defun chomp 75,2113
+(defun cmd-concat 81,2368
+(defun pony-find-file 85,2453
+(defun pony-locate 99,2917
+(defun pony-read-file 117,3497
+(defun pony-pop(126,3694
+(defun pony-comint-pop(132,3828
+(defun pony-manage-pop 141,4176
+(defun pony-dir-excursion(156,4696
+(defun pony-mini-file(164,4939
+(defun pony-localise 174,5263
+(defstruct pony-project198,5833
+(defun pony-get-project(217,6004
+(defun pony-get-python(225,6185
+(defun pony-get-ipython(232,6336
+(defun pony-get-default-env(240,6499
+(defun pony-get-run-env(248,6699
+(defun pony-get-shell-env(258,6967
+(defun pony-get-test-env(268,7242
+(defun pony-configfile-p 280,7540
+(defun pony-rc 284,7686
+(defun pony-reload-mode(289,7843
+(defun pony-get-func(296,7942
+(defun pony-get-class(305,8242
+(defun pony-get-app(314,8535
+(defun pony-project-root(327,8901
+(defun pony-rooted-sym-p 347,9595
+(defun pony-manage-cmd(353,9832
+(defun pony-active-python(373,10701
+(defun pony-command-exists(385,11099
+(defun pony-get-settings-file(406,11897
+(defun pony-setting-p 418,12256
+(defun pony-get-setting(426,12513
+(defun pony-setting(442,13104
+(defun pony-buildout-cmd(451,13385
+(defun pony-buildout-list-bin(464,13849
+(defun pony-buildout(469,14040
+(defun pony-buildout-bin(489,14685
+(defstruct pony-db-settings 502,15137
+(defun pony-get-db-settings(505,15209
+(defun pony-db-shell(524,16103
+(defun pony-fabric-p 547,16900
+(defun pony-fabric-list-commands(556,17152
+(defun pony-fabric-run(562,17380
+(defun pony-fabric(567,17511
+(defun pony-fabric-deploy(577,17856
+(defun pony-template-decorator(585,18010
+(defun pony-goto-template(596,18307
+(defun pony-reverse-url 613,18895
+(defun pony-goto-settings(627,19315
+(defun pony-list-commands(635,19488
+(defun pony-manage-run(647,19946
+(defun pony-manage(655,20232
+(defun pony-flush(665,20641
+(defun pony-dumpdata(673,20760
+(defun pony-loaddata 684,21133
+(defun pony-full-hostname(696,21524
+(defun pony-runserver(701,21651
+(defun pony-stopserver(732,22599
+(defun pony-browser(754,23433
+(defun pony-shell(766,23735
+(defun pony-startapp(780,24112
+(defun pony-syncdb(790,24361
+(defun pony-south-convert(802,24707
+(defun pony-south-schemamigration(810,24970
+(defun pony-south-migrate(823,25483
+(defun pony-south-initial 839,26116
+(defun pony-tags(849,26404
+(defun pony-test(865,26894
+(defun pony-test-open 891,27754
+(defun pony-test-goto-err(903,28219
+(defun pony-test-up(910,28407
+(defun pony-test-down(916,28560
+(defun pony-test-hl-files 922,28714
+(defun pony-key(944,29328
+(defun ponyt-key 948,29468
+(defvar pony-minor-mode-map952,29601
+(defvar pony-test-minor-mode-map967,30091
+(defvar pony-menu 980,30443
+(defvar pony-minor-mode-hook 1027,32016
+(define-minor-mode pony-minor-mode1029,32051
+(defun pony-mode(1035,32167
+(defun pony-mode-disable 1044,32329
+(defvar pony-tpl-mode-hook 1051,32457
+(defconst pony-tpl-font-lock-keywords1053,32490
+(define-minor-mode pony-tpl-minor-mode1066,33117
+(defun pony-tpl-mode(1072,33251
+(define-minor-mode pony-test-minor-mode1083,33531
+(defun pony-test-mode 1089,33657

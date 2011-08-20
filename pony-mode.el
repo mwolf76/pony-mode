@@ -3,11 +3,12 @@
 ;; Copyright (C) 2011 David Miller <david@deadpansincerity.com>
 
 ;; Author: David Miller <david@deadpansincerity.com>
-;; Maintainer: David Miller <david@deadpansincerity.com>
+;;         Marco Pensallorto <marco.pensallorto@gmail.com>
+;; Maintainer: Marco Pensallorto <marco.pensallorto@gmail.com>
 ;; Created 2011-02-20
 ;; Keywords: python django
 ;;
-;; Version: 0.2
+;; Version: 0.2-mp
 ;;
 
 ;; This file is NOT part of GNU Emacs
@@ -62,7 +63,7 @@ projects using sqlite."
   :group 'pony
   :type 'string)
 
-;; Dependancies and environment sniffing
+;; Dependencies and environment sniffing
 (require 'cl)
 (require 'sgml-mode)
 (require 'sql)
@@ -143,9 +144,10 @@ buffer. Intended as a wrapper around `pony-commint-pop', this
 function bypasses the need to construct manage.py calling
 sequences in command functions."
 
-  (let ((exec (executable-find "env"))
+  (let ((env-exec (executable-find "env"))
         (python (pony-active-python)))
-    (pony-comint-pop name exec
+
+    (pony-comint-pop name env-exec
                      (cons env
                            (cons python
                                  (cons command args))))))
@@ -198,9 +200,18 @@ sequences in command functions."
   python
   ipython
   default-env
+
   run-env
+  run-opts
+
   shell-env
-  test-env)
+  shell-opts
+
+  test-env
+  test-opts
+
+  host
+  port)
 
 ;;;###autoload
 (defun pony-get-project()
@@ -245,7 +256,7 @@ sequences in command functions."
 
 ;;;###autoload
 (defun pony-get-shell-env()
-  "pony-get-test-env: Fetch testing environment"
+  "pony-get-shell-env: Fetch testing environment"
 
     (if (pony-configfile-p)
         (let ((rc (pony-rc)))
@@ -415,7 +426,7 @@ Be aware of .ponyrc configfiles, 'clean', buildout, and
 (defun pony-get-setting(setting)
   "pony-get-setting: Get the pony settings.py value for `setting`"
   (let ((settings (pony-get-settings-file))
-        (python-c (concat (pony-active-python env)
+        (python-c (concat (pony-active-python)
                           " -c \"import settings; print settings.%s\""))
         (working-dir default-directory)
         (set-val nil))
@@ -519,16 +530,19 @@ Be aware of .ponyrc configfiles, 'clean', buildout, and
       (setq sql-password (pony-db-settings-pass db))
       (setq sql-database (pony-db-settings-name db))
       (setq sql-server (pony-db-settings-host db))
+
       (if (equalp (pony-db-settings-engine db) "mysql")
           (sql-connect-mysql)
+
         (if (string-match "sqlite3" (pony-db-settings-engine db))
             (let ((sql-sqlite-program pony-sqlite-program))
               (sql-connect-sqlite))
+
           (if (equalp (pony-db-settings-engine db) "postgresql_psycopg2")
               (sql-connect-postgres))))
-      (pony-pop "*SQL*")
-      (rename-buffer "*PonyDbShell*"))))
 
+      (pony-pop "*SQL*")
+      (rename-buffer "*pony-db-shell*"))))
 
 ;; Fabric
 
@@ -623,19 +637,22 @@ Be aware of .ponyrc configfiles, 'clean', buildout, and
 ;;;###autoload
 (defun pony-list-commands()
   "pony-list-commands: List of managment commands for the current project"
-  (with-temp-buffer
-    (insert (shell-command-to-string
-             (concat (pony-active-python) " " (pony-manage-cmd))))
-    (goto-char (point-min))
-    (if (looking-at
-         "\\(\\(.*\n\\)*Available subcommands:\\)\n\\(\\(.*\n\\)+?\\)Usage:")
-        (split-string (buffer-substring (match-beginning 3) (match-end 3)))
-      nil)))
+  (let (root (pony-project-root))
+
+    (if root
+        (with-temp-buffer
+          (insert (shell-command-to-string
+                   (concat (pony-active-python) " " (pony-manage-cmd))))
+          (goto-char (point-min))
+          (if (looking-at
+               "\\(\\(.*\n\\)*Available subcommands:\\)\n\\(\\(.*\n\\)+?\\)Usage:")
+              (split-string (buffer-substring (match-beginning 3) (match-end 3)))
+            nil)))))
 
 ;;;###autoload
 (defun pony-manage-run(args)
   "Run the pony-manage command completed from the minibuffer"
-  (message "starting server for project" (pony-project-project))
+  (message "starting server for project" (pony-get-project))
   (pony-manage-pop "ponymanage"
                    (pony-get-run-env)
                    (pony-manage-cmd) args))
@@ -644,11 +661,14 @@ Be aware of .ponyrc configfiles, 'clean', buildout, and
 (defun pony-manage()
   "Interactively call the pony manage command"
   (interactive)
-  (let ((command (minibuffer-with-setup-hook 'minibuffer-complete
-                              (completing-read "Manage: "
-                                               (pony-list-commands)))))
-    (pony-manage-run (list command
-                             (read-from-minibuffer (concat command ": "))))))
+  (if (pony-project-root)
+      (let ((command (minibuffer-with-setup-hook 'minibuffer-complete
+                       (completing-read "Manage: "
+                                        (pony-list-commands)))))
+        (pony-manage-run (list command
+                               (read-from-minibuffer (concat command ": ")))))
+
+  (message "not within a pony project... Aborting.")))
 
 ;;;###autoload
 (defun pony-flush()
@@ -693,11 +713,13 @@ Be aware of .ponyrc configfiles, 'clean', buildout, and
   (let ((proc (get-buffer-process "*pony-server*"))
         (working-dir default-directory))
     (if proc
+        (pony-pop "*pony-server*")
         (message "server already running... Aborting.")
 
       (let
           ((command (if (pony-command-exists "runserver_plus")
                         "runserver_plus" "runserver"))
+           (project (pony-get-project))
            (host (pony-full-hostname))
            (root (pony-project-root))
            (manage (pony-manage-cmd))
@@ -706,16 +728,44 @@ Be aware of .ponyrc configfiles, 'clean', buildout, and
         (if root
             (progn
               (cd root)
-              (message ":: Starting %s" command)
-              (message "-- Hostname %s" host)
-              (message "-- Environment  '%s'" env)
-              (message "-- Project root '%s'" root)
+              (message
+               ":: Starting %s from project %s on %s (envirnonment is %s)."
+               command project host env)
 
               (pony-manage-pop "pony-server" env manage (list command host))
               (cd working-dir))
 
-          (message "not withing a pony project... Aborting."))))))
+          (message "not within a pony project... Aborting."))))))
 
+;;;###autoload
+(defun pony-runserver-pdb()
+  "Start the dev server in pdb"
+  (interactive)
+  (let ((proc (get-buffer-process "*pony-debug*"))
+        (working-dir default-directory))
+    (if proc
+        (pony-pop "*pony-debug*")
+
+      (let
+          ((command (if (pony-command-exists "runserver_plus")
+                        "runserver_plus" "runserver"))
+           (project (pony-get-project))
+           (host (pony-full-hostname))
+           (root (pony-project-root))
+           (manage (pony-manage-cmd))
+           (env (pony-get-run-env)))
+
+        (if root
+            (progn
+              (cd root)
+              (message
+               ":: Starting %s from project %s on %s (envirnonment is %s)."
+               command project host env)
+
+              (pony-manage-pop "pony-server" env manage (list command host))
+              (cd working-dir))
+
+          (message "not within a pony project... Aborting."))))))
 
 ;;;###autoload
 (defun pony-stopserver()
@@ -724,18 +774,18 @@ Be aware of .ponyrc configfiles, 'clean', buildout, and
   (let ((proc (get-buffer-process "*pony-server*")))
     (when proc (kill-process proc t))))
 
-;;;###autoload
-(defun pony-temp-server ()
-  "Relatively regularly during development, I need/want to set up a development
-server instance either on a nonstandard (or second) port, or that will be accessible
-to the outside world for some reason. Meanwhile, i don't want to set my default host to 0.0.0.0
-This function allows you to run a server with a 'throwaway' host:port"
-  (interactive)
-  (let ((args (list "runserver" (read-from-minibuffer "host:port "))))
-    (pony-manage-pop "ponytempserver"
-                     (pony-get-run-env)
-                     (pony-manage-cmd)
-                     args)))
+;; ;;;###autoload
+;; (defun pony-temp-server ()
+;;   "Relatively regularly during development, I need/want to set up a development
+;; server instance either on a nonstandard (or second) port, or that will be accessible
+;; to the outside world for some reason. Meanwhile, i don't want to set my default host to 0.0.0.0
+;; This function allows you to run a server with a 'throwaway' host:port"
+;;   (interactive)
+;;   (let ((args (list "runserver" (read-from-minibuffer "host:port "))))
+;;     (pony-manage-pop "ponytempserver"
+;;                      (pony-get-run-env)
+;;                      (pony-manage-cmd)
+;;                      args)))
 
 ;; View server
 
@@ -743,11 +793,13 @@ This function allows you to run a server with a 'throwaway' host:port"
 (defun pony-browser()
   "Open a tab at the development server"
   (interactive)
-  (let ((url "http://localhost:8000")
-        (proc (get-buffer-process "*pony-server*")))
-    (if (not proc)
-        (pony-runserver))
-    (run-with-timer 2 nil 'browse-url url)))
+  (let ((url (concat "http://" (pony-full-hostname))))
+
+    ;; if server is down try to start it
+    (if (not (get-buffer-process "*pony-server*")) (pony-runserver))
+
+    ;; open the browser if the server is up
+    (if (get-buffer-process "*pony-server*") (run-with-timer 2 nil 'browse-url url))))
 
 ;; Shell
 
@@ -755,13 +807,31 @@ This function allows you to run a server with a 'throwaway' host:port"
 (defun pony-shell()
   "Open a shell with the current pony project's context loaded"
   (interactive)
-  (if (pony-command-exists "shell_plus")
-      (setq command "shell_plus")
-    (setq command "shell"))
-  (pony-manage-pop "pony-shell"
-                   (pony-get-shell-env)
-                   (pony-manage-cmd)
-                   (list command)))
+  (let ((proc (get-buffer-process "*pony-shell*"))
+        (working-dir default-directory))
+    (if proc
+        (pony-pop "*pony-shell*")
+
+      (let
+          ((command (if (pony-command-exists "shell_plus")
+                        "shell_plus" "shell"))
+           (project (pony-get-project))
+           (host (pony-full-hostname))
+           (root (pony-project-root))
+           (manage (pony-manage-cmd))
+           (env (pony-get-shell-env)))
+
+        (if root
+            (progn
+              (cd root)
+              (message
+               ":: Starting %s from project %s (environment is %s)."
+               command project env)
+
+              (pony-manage-pop "pony-shell" env manage (list command))
+              (cd working-dir))
+
+          (message "not withing a pony project... Aborting."))))))
 
 ;; Startapp
 
@@ -839,15 +909,17 @@ This function allows you to run a server with a 'throwaway' host:port"
   "Generate new tags table"
   (interactive)
   (let ((working-dir default-directory)
-        (tags-dir (read-directory-name "TAGS location: "
-                                       (pony-project-root))))
-    (cd (expand-file-name tags-dir))
-    (message "TAGging... this could take some time")
-    (shell-command pony-etags-command )
-    (visit-tags-table (concat tags-dir "TAGS"))
-    (cd working-dir)
-    (message "TAGS table regenerated")))
+        (tags-dir (pony-project-root)))
 
+    (if tags-dir (progn
+                   (cd (expand-file-name tags-dir))
+                   (message "TAGging... this could take some time")
+                   (shell-command pony-etags-command )
+                   (visit-tags-table (concat tags-dir "TAGS"))
+                   (cd working-dir)
+                   (message "TAGS table regenerated"))
+
+      (message "not withing a pony project... Aborting."))))
 ;; Testing
 
 ;;;###autoload
