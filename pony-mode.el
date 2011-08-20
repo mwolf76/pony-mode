@@ -37,7 +37,7 @@
   :group 'programming
   :prefix "pony-")
 
-(defcustom pony-etags-command "find . | grep .py | xargs etags"
+(defcustom pony-etags-command "find . -type f -name \"*.py\" | xargs etags"
   "pony-etags-command: Command to generate tags table for project"
   :group 'pony
   :type 'string)
@@ -58,8 +58,8 @@
   :type 'bool)
 
 (defcustom pony-sqlite-program "sqlite3"
-  "pony-sqlite-program: Name of the executable to use when running a database REPL for Django
-projects using sqlite."
+  "pony-sqlite-program: Name of the executable to use when
+running a database REPL for Django projects using sqlite."
   :group 'pony
   :type 'string)
 
@@ -73,7 +73,8 @@ projects using sqlite."
 
 ;;;###autoload
 (defun chomp (str)
-  "chomp: Chomp leading and tailing whitespace www.emacswiki.org/emacs/ElispCookbook"
+  "chomp: Chomp leading and tailing whitespace
+www.emacswiki.org/emacs/ElispCookbook"
   (let ((s (if (symbolp str) (symbol-name str) str)))
     (replace-regexp-in-string "\\(^[[:space:]\n]*\\|[[:space:]\n]*$\\)" "" s)))
 
@@ -871,7 +872,7 @@ Be aware of .ponyrc configfiles, 'clean', buildout, and
     (if tags-dir (progn
                    (cd (expand-file-name tags-dir))
                    (message "TAGging... this could take some time")
-                   (shell-command pony-etags-command )
+                   (shell-command pony-etags-command)
                    (visit-tags-table (concat tags-dir "TAGS"))
                    (cd working-dir)
                    (message "TAGS table regenerated"))
