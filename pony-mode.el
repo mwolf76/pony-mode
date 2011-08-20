@@ -738,36 +738,6 @@ Be aware of .ponyrc configfiles, 'clean', buildout, and
           (message "not within a pony project... Aborting."))))))
 
 ;;;###autoload
-(defun pony-runserver-pdb()
-  "Start the dev server in pdb"
-  (interactive)
-  (let ((proc (get-buffer-process "*pony-debug*"))
-        (working-dir default-directory))
-    (if proc
-        (pony-pop "*pony-debug*")
-
-      (let
-          ((command (if (pony-command-exists "runserver_plus")
-                        "runserver_plus" "runserver"))
-           (project (pony-get-project))
-           (host (pony-full-hostname))
-           (root (pony-project-root))
-           (manage (pony-manage-cmd))
-           (env (pony-get-run-env)))
-
-        (if root
-            (progn
-              (cd root)
-              (message
-               ":: Starting %s from project %s on %s (envirnonment is %s)."
-               command project host env)
-
-              (pony-manage-pop "pony-server" env manage (list command host))
-              (cd working-dir))
-
-          (message "not within a pony project... Aborting."))))))
-
-;;;###autoload
 (defun pony-stopserver()
   "Stop the dev server"
   (interactive)
