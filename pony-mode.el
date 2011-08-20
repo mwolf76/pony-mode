@@ -146,7 +146,7 @@ function bypasses the need to construct manage.py calling
 sequences in command functions."
 
   (let ((env-exec (executable-find "env"))
-        (python (pony-active-python)))
+        (python (pony-python-exec)))
 
     (pony-comint-pop name env-exec
                      (cons env
@@ -198,12 +198,17 @@ sequences in command functions."
 
 (defstruct pony-project
   project
+  veroot
+
   python
   ipython
   default-env
 
   run-env
   run-opts
+
+  db-env
+  db-opts
 
   shell-env
   shell-opts
@@ -228,6 +233,15 @@ sequences in command functions."
   (if (pony-configfile-p)
       (let ((rc (pony-rc)))
         (pony-project-python rc))))
+
+;;;###autoload
+(defun pony-get-fab()
+  "pony-get-fab"
+  (if (pony-configfile-p)
+      (let ((rc (pony-rc)))
+        (concat
+         (pony-project-veroot rc)
+         "/bin/fab"))))
 
 ;;;###autoload
 (defun pony-get-ipython()
@@ -273,6 +287,16 @@ sequences in command functions."
         (let ((rc (pony-rc)))
           (if (pony-project-test-env rc)
               (pony-project-test-env rc)
+            (pony-get-default-env)))))
+
+;;;###autoload
+(defun pony-get-db-env()
+  "pony-get-db-env: Fetch db environment"
+
+    (if (pony-configfile-p)
+        (let ((rc (pony-rc)))
+          (if (pony-project-db-env rc)
+              (pony-project-db-env rc)
             (pony-get-default-env)))))
 
 ;;;; TODO: Jenkins, al..
@@ -371,8 +395,8 @@ This command will only work if you run with point in a buffer that is within you
               found))))))
 
 ;;;###autoload
-(defun pony-active-python()
-  "pony-active-python: Fetch the active Python interpreter for this Django project.
+(defun pony-python-exec()
+  "pony-python-exec: Fetch the active Python interpreter for this Django project.
 Be aware of .ponyrc configfiles, 'clean', buildout, and
  virtualenv situations"
   (if (pony-configfile-p)
@@ -383,10 +407,15 @@ Be aware of .ponyrc configfiles, 'clean', buildout, and
         (executable-find "python")))))
 
 ;;;###autoload
+(defun pony-env-exec()
+  "pony-env-exec: Fetch the env executeable"
+  (executable-find "env"))
+
+;;;###autoload
 (defun pony-command-exists(cmd)
   "pony-command-exists: Is cmd installed in this app?"
   (if (string-match cmd
-       (let ((python (pony-active-python))
+       (let ((python (pony-python-exec))
              (manage (pony-manage-cmd)))
         (shell-command-to-string (cmd-concat python manage)))) t))
 
@@ -397,7 +426,7 @@ Be aware of .ponyrc configfiles, 'clean', buildout, and
 ;;       (let ((process-buffer (concat "*" proc-name "*")))
 ;;         (progn
 ;;           (start-process proc-name process-buffer
-;;                          (pony-active-python env)
+;;                          (pony-python-exec env)
 ;;                          (pony-manage-cmd)
 ;;                          command args)
 ;;           (pop-to-buffer (get-buffer process-buffer))))
@@ -418,19 +447,23 @@ Be aware of .ponyrc configfiles, 'clean', buildout, and
 ;;;###autoload
 (defun pony-setting-p (setting)
   "pony-settings-p: Predicate to determine whether a `setting' exists for the current project"
-  (let ((setting? (pony-get-setting setting)))
+  (let ((setting? (pony-get-setting setting (pony-get-default-env))))
     (if (string-match "Traceback" setting?)
         nil
       t)))
 
 ;;;###autoload
-(defun pony-get-setting(setting)
-  "pony-get-setting: Get the pony settings.py value for `setting`"
+(defun pony-get-setting(setting env)
+  "pony-get-setting: Get the pony settings.py value for `setting`
+in the given env."
   (let ((settings (pony-get-settings-file))
-        (python-c (concat (pony-active-python)
-                          " -c \"import settings; print settings.%s\""))
+        (python-c (cmd-concat
+                   (pony-env-exec) env
+                   (pony-python-exec)
+                   "-c \"import settings; print settings.%s\""))
         (working-dir default-directory)
         (set-val nil))
+
     (if settings
         (progn
           (cd (file-name-directory settings))
@@ -440,17 +473,21 @@ Be aware of .ponyrc configfiles, 'clean', buildout, and
           set-val))))
 
 ;;;###autoload
-(defun pony-setting()
-  "pony-setting: Interactively display a setting value in the minibuffer"
+(defun pony-default-setting()
+  "pony-default-setting: Interactively display a setting value in the minibuffer (default env)"
   (interactive)
-  (let ((setting (read-from-minibuffer "Get setting: " (word-at-point))))
-    (message (concat setting " : " (pony-get-setting setting)))))
+  (if (pony-project-root)
+      (let ((setting (read-from-minibuffer "Get setting: " (word-at-point))))
+        (message (concat setting " : " (pony-get-setting setting
+                                                         (pony-get-default-env)))))
+    (message "not within a pony project... Aborting.")))
 
 ;; Buildout
 
 ;;;###autoload
 (defun pony-buildout-cmd()
-  "pony-buildout-cmd: Return the buildout command or nil if we're not in a buildout"
+  "pony-buildout-cmd: Return the buildout command or nil if we're
+not in a buildout."
   (pony-localise
    'pony-this-buildout-root
    '(lambda ()
@@ -505,45 +542,75 @@ Be aware of .ponyrc configfiles, 'clean', buildout, and
 ;;;###autoload
 (defun pony-get-db-settings()
   "pony-get-db-settings: Get Pony's database settings"
-  (let ((db-settings
-         (if (pony-setting-p "DATABASE_ENGINE")
+  (let ((env (pony-get-db-env)))
+    (let ((db-settings
+           (if (pony-setting-p "DATABASE_ENGINE")
+               (make-pony-db-settings
+                :engine (pony-get-setting "DATABASE_ENGINE" env)
+                :name (pony-get-setting "DATABASE_NAME" env)
+                :user (pony-get-setting "DATABASE_USER" env)
+                :pass (pony-get-setting "DATABASE_PASSWORD" env)
+                :host (pony-get-setting "DATABASE_HOST" env))
              (make-pony-db-settings
-              :engine (pony-get-setting "DATABASE_ENGINE")
-              :name (pony-get-setting "DATABASE_NAME")
-              :user (pony-get-setting "DATABASE_USER")
-              :pass (pony-get-setting "DATABASE_PASSWORD")
-              :host (pony-get-setting "DATABASE_HOST"))
-           (make-pony-db-settings
-            :engine (pony-get-setting "DATABASES['default']['ENGINE']")
-            :name (pony-get-setting "DATABASES['default']['NAME']")
-            :user (pony-get-setting "DATABASES['default']['USER']")
-            :pass (pony-get-setting "DATABASES['default']['PASSWORD']")
-            :host (pony-get-setting "DATABASES['default']['HOST']")))))
-    db-settings))
+              :engine (pony-get-setting "DATABASES['default']['ENGINE']" env)
+              :name (pony-get-setting "DATABASES['default']['NAME']" env)
+              :user (pony-get-setting "DATABASES['default']['USER']" env)
+              :pass (pony-get-setting "DATABASES['default']['PASSWORD']" env)
+              :host (pony-get-setting "DATABASES['default']['HOST']") env))))
+    db-settings)))
+
+;;;###autoload
+(defun ends-with (s ss)
+  (equalp ss (substring s (- (length ss)))))
 
 ;;;###autoload
 (defun pony-db-shell()
   "pony-db-shell: Run sql-XXX for this project"
   (interactive)
-  (let ((db (pony-get-db-settings)))
-    (progn
-      (setq sql-user (pony-db-settings-user db))
-      (setq sql-password (pony-db-settings-pass db))
-      (setq sql-database (pony-db-settings-name db))
-      (setq sql-server (pony-db-settings-host db))
+  (let ((proc (get-buffer-process "*pony-db-shell*"))
+        (working-dir default-directory))
 
-      (if (equalp (pony-db-settings-engine db) "mysql")
-          (sql-connect-mysql)
+    ;; if db shell process is already running pop the buffer
+    (if proc
+        (pony-pop "*pony-db-shell*")
 
-        (if (string-match "sqlite3" (pony-db-settings-engine db))
-            (let ((sql-sqlite-program pony-sqlite-program))
-              (sql-connect-sqlite))
+      ;; otherwise, try to open the db shell
+      (if (pony-project-root)
+          (let ((db (pony-get-db-settings)))
+            (let ((sql-user (pony-db-settings-user db))
+                  (sql-password (pony-db-settings-pass db))
+                  (sql-database (pony-db-settings-name db))
+                  (sql-server (pony-db-settings-host db)))
 
-          (if (equalp (pony-db-settings-engine db) "postgresql_psycopg2")
-              (sql-connect-postgres))))
+              ;; mysql backend
+              (if (ends-with (pony-db-settings-engine db)
+                             "mysql")
+                  (progn
+                    (sql-connect-mysql)
+                    (pony-pop "*SQL*")
+                    (rename-buffer "*pony-db-shell*"))
 
-      (pony-pop "*SQL*")
-      (rename-buffer "*pony-db-shell*"))))
+                ;; sqlite backend
+                (if (string-match "sqlite3"
+                                  (pony-db-settings-engine db))
+                    (let ((sql-sqlite-program pony-sqlite-program))
+                      (progn
+                        (sql-connect-sqlite)
+                        (pony-pop "*SQL*")
+                        (rename-buffer "*pony-db-shell*")))
+
+                  ;; postgresql backend
+                  (if (ends-with (pony-db-settings-engine db)
+                                 "postgresql_psycopg2")
+                      (progn
+                        (sql-connect-postgres)
+                        (pony-pop "*SQL*")
+                        (rename-buffer "*pony-db-shell*"))
+
+                    (message "Unsupported db backend. Aborting."))))))
+
+        (message "Not within a pony project... Aborting")))))
+
 
 ;; Fabric
 
@@ -608,7 +675,7 @@ Be aware of .ponyrc configfiles, 'clean', buildout, and
     (if template
         (setq filename
               (expand-file-name
-               template (pony-get-setting "TEMPLATE_DIRS"))))
+               template (pony-get-setting "TEMPLATE_DIRS" (pony-get-default-env)))))
     (if (and filename (file-exists-p filename))
         (find-file filename)
       (message (format "Template %s not found" filename)))))
@@ -643,7 +710,7 @@ Be aware of .ponyrc configfiles, 'clean', buildout, and
     (if root
         (with-temp-buffer
           (insert (shell-command-to-string
-                   (concat (pony-active-python) " " (pony-manage-cmd))))
+                   (concat (pony-python-exec) " " (pony-manage-cmd))))
           (goto-char (point-min))
           (if (looking-at
                "\\(\\(.*\n\\)*Available subcommands:\\)\n\\(\\(.*\n\\)+?\\)Usage:")
@@ -686,7 +753,7 @@ Be aware of .ponyrc configfiles, 'clean', buildout, and
   (let ((dump (read-from-minibuffer "Dumpdata: " (pony-get-app)))
         (target (pony-mini-file "File: ")))
     (shell-command (concat
-                    (pony-active-python) " "
+                    (pony-python-exec) " "
                     (pony-manage-cmd) " dumpdata " dump " > " target))
   (message (concat "Written to " target))))
 
@@ -713,9 +780,9 @@ Be aware of .ponyrc configfiles, 'clean', buildout, and
   (interactive)
   (let ((proc (get-buffer-process "*pony-server*"))
         (working-dir default-directory))
+
     (if proc
         (pony-pop "*pony-server*")
-        (message "server already running... Aborting.")
 
       (let
           ((command (if (pony-command-exists "runserver_plus")
@@ -767,6 +834,7 @@ Be aware of .ponyrc configfiles, 'clean', buildout, and
   (interactive)
   (let ((proc (get-buffer-process "*pony-shell*"))
         (working-dir default-directory))
+
     (if proc
         (pony-pop "*pony-shell*")
 
@@ -808,7 +876,7 @@ Be aware of .ponyrc configfiles, 'clean', buildout, and
   "Run Syncdb on the current project"
   (interactive)
   (start-process "ponymigrations" "*ponymigrations*"
-                 (pony-active-python) (pony-manage-cmd) "syncdb")
+                 (pony-python-exec) (pony-manage-cmd) "syncdb")
   (pony-pop "*ponymigrations*"))
 
 ;; (defun pony-south-get-migrations()
@@ -831,7 +899,7 @@ Be aware of .ponyrc configfiles, 'clean', buildout, and
     (if (pony-command-exists "schemamigration")
         (progn
           (start-process "ponymigrations" "*ponymigrations*"
-                         (pony-active-python) (pony-manage-cmd)
+                         (pony-python-exec) (pony-manage-cmd)
                          "schemamigration" app "--auto")
           (pony-pop "*ponymigrations*"))
       (message "South doesn't seem to be installed"))))
@@ -975,10 +1043,10 @@ Be aware of .ponyrc configfiles, 'clean', buildout, and
 (pony-key "\C-c\C-pd" 'pony-db-shell)
 (pony-key "\C-c\C-pf" 'pony-fabric)
 (pony-key "\C-c\C-pgt" 'pony-goto-template)
-(pony-key "\C-c\C-pgs" 'pony-goto-settings)
+;; (pony-key "\C-c\C-pgs" 'pony-goto-settings) ;; TODO JUMP to settings directory
 (pony-key "\C-c\C-pr" 'pony-runserver)
 (pony-key "\C-c\C-pm" 'pony-manage)
-(pony-key "\C-c\C-ps" 'pony-shell)
+(pony-key "\C-c\C-ps" 'pony-default-setting)
 (pony-key "\C-c\C-p!" 'pony-shell)
 (pony-key "\C-c\C-pt" 'pony-test)
 (pony-key "\C-c\C-p\C-r" 'pony-reload-mode)
@@ -1030,7 +1098,7 @@ Be aware of .ponyrc configfiles, 'clean', buildout, and
          ["Goto settings file for project" pony-goto-settings]
          ["Goto template for view or at point" pony-goto-template]
          "-"
-         ["Check setting value for project" pony-setting]
+         ["Check setting value for project (default env)" pony-default-setting]
          "-"
          ("Environment"
           ["Generate TAGS file" pony-tags]
