@@ -67,6 +67,7 @@ running a database REPL for Django projects using sqlite."
 (require 'cl)
 (require 'sgml-mode)
 (require 'sql)
+(require 'grep)
 (require 'thingatpt)
 
 ;; Utility
@@ -200,6 +201,9 @@ sequences in command functions."
   project
   veroot
 
+  depdirs
+  pruned
+
   python
   ipython
   default-env
@@ -268,6 +272,24 @@ sequences in command functions."
           (if (pony-project-run-env rc)
               (pony-project-run-env rc)
             (pony-get-default-env)))))
+
+;;;###autoload
+(defun pony-get-depdirs()
+  "pony-get-depdirs: Fetch dependency directories"
+
+    (if (pony-configfile-p)
+        (let ((rc (pony-rc)))
+          (if (pony-project-depdirs rc)
+              (pony-project-depdirs rc)))))
+
+;;;###autoload
+(defun pony-get-pruned()
+  "pony-get-pruned: Fetch dependency directories"
+
+    (if (pony-configfile-p)
+        (let ((rc (pony-rc)))
+          (if (pony-project-pruned rc)
+              (pony-project-pruned rc)))))
 
 ;;;###autoload
 (defun pony-get-shell-env()
@@ -607,6 +629,62 @@ not in a buildout."
         (message "Not within a pony project... Aborting")))))
 
 
+;; Greppers
+;;;###autoload
+(defun dquote-name(name)
+     (concat "\"" name "\""))
+
+;;;###autoload
+(defun exclude-concat (&rest args)
+      (mapconcat
+       (lambda (name) (cmd-concat "-name" (dquote-name name) "-prune"))
+       (apply 'list args) " -o "))
+
+;;;###autoload
+(defun pony-build-find-predicate (root ext &rest pruned)
+     "pony-build-find-predicate: builds a find predicate starting
+from root excluding all third party directories (pruned). The
+last predicate includes in the search the given ext."
+
+     (cmd-concat root (apply 'exclude-concat pruned)
+                 "-o -name" (dquote-wildcard ext) "-print"))
+
+;;;###autoload
+(defun pony-find-grep-py ()
+  "pony-find-grep-py: Find usages of current word in .py files of
+entire project."
+
+  (interactive)
+  (let ((root (pony-project-root)))
+    (if root
+        (let ((pattern (read-from-minibuffer "Pattern : " (word-at-point))))
+          (let ((grep-cmd
+                 (cmd-concat "find" root
+                             (apply 'exclude-concat (pony-get-pruned))
+                             "-o -name \"*.py\"" "-print"
+                             "|" "xargs" "grep -nH -e" pattern)))
+            (grep-find grep-cmd)))
+
+      (message "not within a pony project...Aborting."))))
+
+;;;###autoload
+(defun pony-find-grep-html ()
+  "pony-find-grep-html: Find usages of current word in .html files of
+entire project."
+
+  (interactive)
+  (let ((root (pony-project-root)))
+    (if root
+        (let ((pattern (read-from-minibuffer "Pattern : " (word-at-point))))
+          (let ((grep-cmd
+                 (cmd-concat "find" root
+                             (apply 'exclude-concat (pony-get-pruned))
+                             "-o -name \"*.html\"" "-print"
+                             "|" "xargs" "grep -nH -e" pattern)))
+            (grep-find grep-cmd)))
+
+      (message "not within a pony project...Aborting."))))
+
 ;; Fabric
 
 ;;;###autoload
@@ -941,6 +1019,8 @@ not in a buildout."
                    (message "TAGS table regenerated"))
 
       (message "not withing a pony project... Aborting."))))
+
+
 ;; Testing
 
 ;;;###autoload
@@ -1044,6 +1124,9 @@ not in a buildout."
 (pony-key "\C-c\C-ps" 'pony-default-setting)
 (pony-key "\C-c\C-p!" 'pony-shell)
 (pony-key "\C-c\C-pt" 'pony-test)
+
+(pony-key "\C-c\C-pp" 'pony-find-grep-py)
+(pony-key "\C-c\C-ph" 'pony-find-grep-html)
 
 (defvar pony-test-minor-mode-map
   (let ((map (make-keymap)))
