@@ -1,24 +1,60 @@
-Pony Mode -a Django mode for emacs
-==================================
+Pony Mode - a Django mode for emacs
+===================================
 
-New Django mode for emacs.
+New Django mode for emacs. This project is a fork of David Miller's pony mode
+For further details on David's project refer to this page on github.
 
-Features (Non-exhaustive):
---------------------------
+https://github.com/davidmiller/pony-mode
 
+Motivation
+----------
+
+For my job I needed to be able to switch among a whole set of different
+configuration/environment variables settings. Moreover working on the Mac,
+it's not very comfortable to launch commands from the command line, often
+with a lot of different settings involved. So I though that could be the
+perfect occasion to learn Elisp and build something that could prove useful
+as a result :)
+
+Features (mostly derived from David Miller's pony mode)
+-------------------------------------------------------
+
+Multiple configuration
+======================
+
+* Configureable multiple environment for running, testing, shell
+  (probably more to come)
+
+Running
+=======
 * Run dev server in an emacs buffer [C-c C-p r]
   * Checks to see if runserver_plus is available
   * If not uses in-built runserver
+  * If server is already running switch to buffer
+
 * Jump to current project in browser (start server if required) [C-c C-p b]
-* Run test case at point in buffer [C-c C-p t]
-* Run tests for current app in buffer [C-c C-p t]
-* Run Syncdb on current project
-* Management commands for current project in interactive buffer
-* South integration - run south convert, schemamigration, migrate
+
+Shell
+=====
 * Run django shell in buffer [C-c C-p s]
   * Checks for shell_plus
   * If not defaults to shell
+  * If shell process already available switch to buffer
+
+Testing
+=======
+* Run test case at point in buffer [C-c C-p t]
+* Run tests for current app in buffer [C-c C-p t]
+
+
+Deployment
+==========
 * Fabric integration [C-c C-p f]
+
+
+* Run Syncdb on current project
+* Management commands for current project in interactive buffer
+* South integration - run south convert, schemamigration, migrate
 * Startapp and dumpdata on current project within emacs
 * Database integration with Emacs sql-mode interactive buffer [C-c C-c d
 * Django Template minor mode with syntax highlighting for django template tags
@@ -34,16 +70,6 @@ Fabric Integration
 ------------------
 
 Pony mode will interact with fabric for your current project, building a list of functions to auto-complete, and running commands within a \*fabric\* buffer.
-
-Buildout Support
-----------------
-
-Pony mode is aware of buildout, and will use buildout-root/bin/django to
-run management commands when available, manage.py when not.
-
-The command M-x django-buildout will re-run buildout for your current project
-
-M-x django-buildout-bin will run a script from your buildout's bin directory in an interactive buffer
 
 Tags
 ----
@@ -66,38 +92,50 @@ in a test run buffer, C-c C-g will jump to the last file and line indicated by t
 Virtualenv
 ----------
 
-Pony-mode will check to see if your project is inside a virtualenv. If so, it will use the python
-interpreter from the virtualenv to run all django-related management commands.
-
-Virtualenv support assumes that you initialized the virtualenv with something equivalent to
-
-    $ virtualenv my-cool-project [--no-site-packages]
-
-    $ cd my-cool-project
-
-    $ django-admin.py startproject awzm
-
-    $ source ./bin/activate
-
-    $ cd awzm
-
-    $ emacs settings.py
-
-If your setup is different to this, then the implicit Virtualenv detection may fail.
-
-Fear not though! if you add a .ponyrc file to your project root (e.g. the directory with your manage.py in) then you can specify the python interpreter you would like to use for this project.
-
 The file should look something like this:
 
-    ;; Pony mode config for the megacorp project
-    (pony-make-project
-        :python "/home/david/virtualenvs/megacorp/production/bin/python")
+;; This file contains configuration parameters for a Django project.
+;; ================================================================
+(make-pony-project
+
+        ;; Project name (mandatory)
+        :project "my-project"
+
+        ;; Main interpreter (mandatory)
+        :python "/Users/markus/Documents/work/my-project/bin/python"
+
+        ;; Interactive interpreter (optional)
+        ;; :ipython "/Users/markus/Documents/work/my-project/ipython"
+
+        ;; Default environment (optional)
+        :default-env "DJANGO_CONF=default"
+
+        ;; Shell environment and options (optional)
+        :shell-env "DJANGO_CONF=default"
+        ;; :shell-opts ""
+
+        ;; Run environment and options (optional)
+        :run-env "DJANGO_CONF=dev"
+        ;; :run-opts ""
+
+        ;; Test environment and options (optional)
+        :test-env "DJANGO_CONF=test"
+        ;; :test-opts ""
+
+        ;; Server host (optional)
+        :host "localhost"
+
+        ;; Server port (optional)
+        :port "8000"
+)
+
+
 
 Installation
 ------------
 
-1. clone this repo somewhere $ git clone http://github.com/davidmiller/pony-mode
-2. Byte-compile the file::
+1. clone this repo somewhere $ git clone http://github.com/mwolf76/pony-mode
+2. Byte-compile the file (recommended, optional)
 
     M-x byte-compile-file
 3. Add the path to your load-path::
@@ -117,8 +155,3 @@ Licence
 -------
 
 Totally GPL
-
-Roadmap
--------
-
-Check pony-mode.org for current todo/wish list
