@@ -1,7 +1,7 @@
 Pony Mode - a Django mode for emacs
 ===================================
 
-New Django mode for emacs. This project is a fork of David Miller's pony mode
+New Django mode for emacs. This project is a fork of David Miller's pony mode.
 For further details on David's project refer to this page on github.
 
 https://github.com/davidmiller/pony-mode
@@ -9,12 +9,12 @@ https://github.com/davidmiller/pony-mode
 Motivation
 ----------
 
-For my job I needed to be able to switch among a whole set of different
-configuration/environment variables settings. Moreover working on the Mac,
-it's not very comfortable to launch commands from the command line, often
-with a lot of different settings involved. So I though that could be the
-perfect occasion to learn Elisp and build something that could prove useful
-as a result :)
+For my current job as a Django Web Developer, I need to be able to switch among a 
+whole set of different configuration/environment variables settings. Moreover, working on the Mac,
+I find it not very comfortable to launch long management commands from the command line, 
+often with a lot of different settings involved, this requires *lots* of typing. 
+So I thought that could be the perfect occasion to learn Elisp and build something 
+that could prove useful as a result :)
 
 Features (mostly derived from David Miller's pony mode)
 -------------------------------------------------------
