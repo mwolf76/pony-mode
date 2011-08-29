@@ -94,56 +94,68 @@ Virtualenv
 
 The file should look something like this:
 
-;; This file contains configuration parameters for a Django project.
-;; ================================================================
-(make-pony-project
+::
 
-        ;; Project name (mandatory)
-        :project "my-project"
+  ;; This file contains configuration parameters for a Django project.
+  ;; ================================================================
+  (make-pony-project
 
-        ;; Main interpreter (mandatory)
-        :python "/Users/markus/Documents/work/my-project/bin/python"
+  ;; Project name (mandatory)
+  :project "my-project"
 
-        ;; Interactive interpreter (optional)
-        ;; :ipython "/Users/markus/Documents/work/my-project/ipython"
+  ;; Main interpreter (mandatory)
+  :python "/Users/markus/Documents/work/my-project/bin/python"
 
-        ;; Default environment (optional)
-        :default-env "DJANGO_CONF=default"
+  ;; Default environment (optional)
+  :default-env "DJANGO_CONF=default"
 
-        ;; Shell environment and options (optional)
-        :shell-env "DJANGO_CONF=default"
-        ;; :shell-opts ""
+  ;; Shell environment and options (optional)
+  :shell-env "DJANGO_CONF=default"
+  ;; :shell-opts ""
 
-        ;; Run environment and options (optional)
-        :run-env "DJANGO_CONF=dev"
-        ;; :run-opts ""
+  ;; Run environment and options (optional)
+  :run-env "DJANGO_CONF=dev"
+  ;; :run-opts ""
 
-        ;; Test environment and options (optional)
-        :test-env "DJANGO_CONF=test"
-        ;; :test-opts ""
+  ;; Test environment and options (optional)
+  :test-env "DJANGO_CONF=test"
+  ;; :test-opts ""
 
-        ;; Server host (optional)
-        :host "localhost"
+  ;; Server host (optional)
+  :host "localhost"
 
-        ;; Server port (optional)
-        :port "8000"
-)
-
+  ;; Server port (optional)
+  :port "8000"
+  )
 
 
 Installation
 ------------
 
-1. clone this repo somewhere $ git clone http://github.com/mwolf76/pony-mode
+1. clone this repo somewhere 
+
+::
+
+  $ git clone http://github.com/mwolf76/pony-mode
+
 2. Byte-compile the file (recommended, optional)
 
-    M-x byte-compile-file
+::
+
+  M-x byte-compile-file
+
 3. Add the path to your load-path::
 
-    (add-to-list 'load-path "path/to/pony-mode")
-4. Add to your .emacs::
+::
 
-    (require 'pony-mode)
+  (add-to-list 'load-path "path/to/pony-mode")
+
+4. Add to your .emacs
+
+::
+
+  (require 'pony-mode)
+
 5. Enjoy
 
 Bugs
