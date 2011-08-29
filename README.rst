@@ -28,18 +28,18 @@ Multiple configuration
 Running
 =======
 * Run dev server in an emacs buffer [C-c C-p r]
-  * Checks to see if runserver_plus is available
-  * If not uses in-built runserver
-  * If server is already running switch to buffer
+* Checks to see if runserver_plus is available
+* If not uses in-built runserver
+* If server is already running switch to buffer
 
 * Jump to current project in browser (start server if required) [C-c C-p b]
 
 Shell
 =====
 * Run django shell in buffer [C-c C-p s]
-  * Checks for shell_plus
-  * If not defaults to shell
-  * If shell process already available switch to buffer
+* Checks for shell_plus
+* If not defaults to shell
+* If shell process already available switch to buffer
 
 Testing
 =======
