@@ -1008,15 +1008,23 @@ entire project."
   "Generate new tags table"
   (interactive)
   (let ((working-dir default-directory)
-        (tags-dir (pony-project-root)))
+        (root (pony-project-root)))
 
-    (if tags-dir (progn
-                   (cd (expand-file-name tags-dir))
-                   (message "TAGging... this could take some time")
-                   (shell-command pony-etags-command)
-                   (visit-tags-table (concat tags-dir "TAGS"))
-                   (cd working-dir)
-                   (message "TAGS table regenerated"))
+    (if root
+        (progn
+          (cd (expand-file-name root))
+          (message "TAGging... this could take some time")
+
+          (let ((etags-cmd
+                 (cmd-concat "rm -f TAGS; for f in `find"
+                             (concat root "../") "-name \"*.py\"`; do etags -a \"$f\"; done;")))
+
+            (shell-command etags-cmd))
+
+          (visit-tags-table (concat root "TAGS"))
+
+          (cd working-dir)
+          (message "TAGS table regenerated"))
 
       (message "not withing a pony project... Aborting."))))
 
@@ -1212,35 +1220,35 @@ entire project."
 
 ;; Pony-tpl-minor-mode
 
-(defvar pony-tpl-mode-hook nil)
+;; (defvar pony-tpl-mode-hook nil)
 
-(defconst pony-tpl-font-lock-keywords
-  (append
-   sgml-font-lock-keywords
-   (list
-    '("{%.*\\(\\bor\\b\\).*%}" . (1 font-lock-builtin-face))
+;; (defconst pony-tpl-font-lock-keywords
+;;   (append
+;;    sgml-font-lock-keywords
+;;    (list
+;;     '("{%.*\\(\\bor\\b\\).*%}" . (1 font-lock-builtin-face))
 
-    '("{% ?comment ?%}\\(\n?.*?\\)+?{% ?endcomment ?%}" . font-lock-comment-face)
-    '("{% ?\\(\\(end\\)?\\(extends\\|for\\|cache\\|cycle\\|filter\\|firstof\\|debug\\|if\\(changed\\|equal\\|notequal\\|\\)\\|include\\|load\\|now\\|regroup\\|spaceless\\|ssi\\|templatetag\\|widthratio\\|block\\|trans\\)\\) ?.*? ?%}" . 1)
-    '("{{ ?\\(.*?\\) ?}}" . (1 font-lock-variable-name-face))
-    '("{%\\|\\%}\\|{{\\|}}" . font-lock-builtin-face)
-    ))
-  "Highlighting for pony-tpl-mode")
+;;     '("{% ?comment ?%}\\(\n?.*?\\)+?{% ?endcomment ?%}" . font-lock-comment-face)
+;;     '("{% ?\\(\\(end\\)?\\(extends\\|for\\|cache\\|cycle\\|filter\\|firstof\\|debug\\|if\\(changed\\|equal\\|notequal\\|\\)\\|include\\|load\\|now\\|regroup\\|spaceless\\|ssi\\|templatetag\\|widthratio\\|block\\|trans\\)\\) ?.*? ?%}" . 1)
+;;     '("{{ ?\\(.*?\\) ?}}" . (1 font-lock-variable-name-face))
+;;     '("{%\\|\\%}\\|{{\\|}}" . font-lock-builtin-face)
+;;     ))
+;;   "Highlighting for pony-tpl-mode")
 
-(define-minor-mode pony-tpl-minor-mode
-  "Pony-templatin-riffic"
-  :initial nil
-  :lighter " PonyTpl"
-  :keymap pony-minor-mode-map)
+;; (define-minor-mode pony-tpl-minor-mode
+;;   "Pony-templatin-riffic"
+;;   :initial nil
+;;   :lighter " PonyTpl"
+;;   :keymap pony-minor-mode-map)
 
-(defun pony-tpl-mode()
-  "Minor mode for editing pony templates"
-  (interactive)
-  (pony-tpl-minor-mode t)
-  (run-hooks 'pony-tpl-mode-hook)
-  (set (make-local-variable 'font-lock-defaults)
-       '(pony-tpl-font-lock-keywords))
-   (pony-load-snippets))
+;; (defun pony-tpl-mode()
+;;   "Minor mode for editing pony templates"
+;;   (interactive)
+;;   (pony-tpl-minor-mode t)
+;;   (run-hooks 'pony-tpl-mode-hook)
+;;   (set (make-local-variable 'font-lock-defaults)
+;;        '(pony-tpl-font-lock-keywords))
+;;    (pony-load-snippets))
 
 ;; Pony-test minor mode
 
@@ -1266,7 +1274,7 @@ entire project."
 (add-hook 'html-mode-hook
            (lambda ()
              (if (pony-project-root)
-                   (pony-tpl-mode))))
+                   (pony-mode))))
 
 (add-hook 'dired-mode-hook
           (lambda ()
