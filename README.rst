@@ -1,7 +1,7 @@
 Pony Mode - a Django mode for emacs
 ===================================
 
-New Django mode for emacs. This project is a fork of David Miller's pony mode
+New Django mode for emacs. This project is a fork of David Miller's pony mode.
 For further details on David's project refer to this page on github.
 
 https://github.com/davidmiller/pony-mode
@@ -9,12 +9,12 @@ https://github.com/davidmiller/pony-mode
 Motivation
 ----------
 
-For my job I needed to be able to switch among a whole set of different
-configuration/environment variables settings. Moreover working on the Mac,
-it's not very comfortable to launch commands from the command line, often
-with a lot of different settings involved. So I though that could be the
-perfect occasion to learn Elisp and build something that could prove useful
-as a result :)
+For my current job as a Django Web Developer, I need to be able to switch among a 
+whole set of different configuration/environment variables settings. Moreover, working on the Mac,
+I find it not very comfortable to launch long management commands from the command line, 
+often with a lot of different settings involved, this requires *lots* of typing. 
+So I thought that could be the perfect occasion to learn Elisp and build something 
+that could prove useful as a result :)
 
 Features (mostly derived from David Miller's pony mode)
 -------------------------------------------------------
@@ -28,18 +28,18 @@ Multiple configuration
 Running
 =======
 * Run dev server in an emacs buffer [C-c C-p r]
-  * Checks to see if runserver_plus is available
-  * If not uses in-built runserver
-  * If server is already running switch to buffer
+* Checks to see if runserver_plus is available
+* If not uses in-built runserver
+* If server is already running switch to buffer
 
 * Jump to current project in browser (start server if required) [C-c C-p b]
 
 Shell
 =====
 * Run django shell in buffer [C-c C-p s]
-  * Checks for shell_plus
-  * If not defaults to shell
-  * If shell process already available switch to buffer
+* Checks for shell_plus
+* If not defaults to shell
+* If shell process already available switch to buffer
 
 Testing
 =======
@@ -94,56 +94,68 @@ Virtualenv
 
 The file should look something like this:
 
-;; This file contains configuration parameters for a Django project.
-;; ================================================================
-(make-pony-project
+::
 
-        ;; Project name (mandatory)
-        :project "my-project"
+  ;; This file contains configuration parameters for a Django project.
+  ;; ================================================================
+  (make-pony-project
 
-        ;; Main interpreter (mandatory)
-        :python "/Users/markus/Documents/work/my-project/bin/python"
+  ;; Project name (mandatory)
+  :project "my-project"
 
-        ;; Interactive interpreter (optional)
-        ;; :ipython "/Users/markus/Documents/work/my-project/ipython"
+  ;; Main interpreter (mandatory)
+  :python "/Users/markus/Documents/work/my-project/bin/python"
 
-        ;; Default environment (optional)
-        :default-env "DJANGO_CONF=default"
+  ;; Default environment (optional)
+  :default-env "DJANGO_CONF=default"
 
-        ;; Shell environment and options (optional)
-        :shell-env "DJANGO_CONF=default"
-        ;; :shell-opts ""
+  ;; Shell environment and options (optional)
+  :shell-env "DJANGO_CONF=default"
+  ;; :shell-opts ""
 
-        ;; Run environment and options (optional)
-        :run-env "DJANGO_CONF=dev"
-        ;; :run-opts ""
+  ;; Run environment and options (optional)
+  :run-env "DJANGO_CONF=dev"
+  ;; :run-opts ""
 
-        ;; Test environment and options (optional)
-        :test-env "DJANGO_CONF=test"
-        ;; :test-opts ""
+  ;; Test environment and options (optional)
+  :test-env "DJANGO_CONF=test"
+  ;; :test-opts ""
 
-        ;; Server host (optional)
-        :host "localhost"
+  ;; Server host (optional)
+  :host "localhost"
 
-        ;; Server port (optional)
-        :port "8000"
-)
-
+  ;; Server port (optional)
+  :port "8000"
+  )
 
 
 Installation
 ------------
 
-1. clone this repo somewhere $ git clone http://github.com/mwolf76/pony-mode
+1. clone this repo somewhere 
+
+::
+
+  $ git clone http://github.com/mwolf76/pony-mode
+
 2. Byte-compile the file (recommended, optional)
 
-    M-x byte-compile-file
+::
+
+  M-x byte-compile-file
+
 3. Add the path to your load-path::
 
-    (add-to-list 'load-path "path/to/pony-mode")
-4. Add to your .emacs::
+::
 
-    (require 'pony-mode)
+  (add-to-list 'load-path "path/to/pony-mode")
+
+4. Add to your .emacs
+
+::
+
+  (require 'pony-mode)
+
 5. Enjoy
 
 Bugs
